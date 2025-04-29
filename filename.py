@@ -1,7 +1,17 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import wasserstein_distance, entropy
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
+
 
 x = np.load(r"C:\Users\magnu\Desktop\project\x.npy")
 y = np.load(r"C:\Users\magnu\Desktop\project\y.npy")
+
+
+
 
 # print(data1.shape, data1.dtype)
 # print(data2.shape, data2.dtype)
@@ -9,43 +19,46 @@ y = np.load(r"C:\Users\magnu\Desktop\project\y.npy")
 # print(data2)  # Print full content (small arrays)
 # print(data1[:5000])  # Print first 5 elements if it's large
 
-import matplotlib.pyplot as plt
+
 
 # Select a sample trial to visualize
-sample_idx = 0  # Change this to see different trials
-neural_activity = x[sample_idx]  # Shape: (neurons, time)
 
-plt.figure(figsize=(10, 6))
-plt.imshow(neural_activity, aspect="auto", cmap="hot", interpolation="nearest")
-plt.colorbar(label="Firing rate")
-plt.xlabel("Time")
-plt.ylabel("Neuron index")
-plt.title(f"Neural Activity for Trial {sample_idx} (Label: {y[sample_idx]})")
-plt.show()
+def sample_trial(x, y):
+    sample_idx = 0  # Change this to see different trials
+    neural_activity = x[sample_idx]  # Shape: (neurons, time)
+
+    plt.figure(figsize=(10, 6))
+    plt.imshow(neural_activity, aspect="auto", cmap="hot", interpolation="nearest")
+    plt.colorbar(label="Firing rate")
+    plt.xlabel("Time")
+    plt.ylabel("Neuron index")
+    plt.title(f"Neural Activity for Trial {sample_idx} (Label: {y[sample_idx]})")
+    plt.show()
+
+sample_trial(x, y)
 
 
-# Compute mean firing rate over time for both classes
-mean_familiar = np.mean(x[y == 0], axis=0)  # Average across trials with y=0
-mean_unfamiliar = np.mean(x[y == 1], axis=0)  # Average across trials with y=1
+def mean_firing_rate(x, y):
+    # Compute mean firing rate over time for both classes
+    mean_familiar = np.mean(x[y == 0], axis=0)  # Average across trials with y=0
+    mean_unfamiliar = np.mean(x[y == 1], axis=0)  # Average across trials with y=1
 
-# Plot the average neural responses
-plt.figure(figsize=(10, 5))
-plt.plot(np.mean(mean_familiar, axis=0), label="Familiar", color="blue")
-plt.plot(np.mean(mean_unfamiliar, axis=0), label="Unfamiliar", color="red")
-plt.xlabel("Time")
-plt.ylabel("Average Firing Rate")
-plt.legend()
-plt.title("Average Neural Activity for Familiar vs Unfamiliar Stimuli")
-plt.show()
+    # Plot the average neural responses
+    plt.figure(figsize=(10, 5))
+    plt.plot(np.mean(mean_familiar, axis=0), label="Familiar", color="blue")
+    plt.plot(np.mean(mean_unfamiliar, axis=0), label="Unfamiliar", color="red")
+    plt.xlabel("Time")
+    plt.ylabel("Average Firing Rate")
+    plt.legend()
+    plt.title("Average Neural Activity for Familiar vs Unfamiliar Stimuli")
+    plt.show()
+
+mean_firing_rate(x, y)
 
 
 
 # Compute the average firing rate for each neuron over time
 X_features = np.mean(x, axis=2)  # Shape: (800, neurons)
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Split data into two groups
 X_familiar = X_features[y == 0].flatten()  # Flatten to compare distributions
@@ -62,13 +75,13 @@ plt.legend()
 plt.show()
 
 
-from scipy.stats import wasserstein_distance
+
 
 # Compute the Wasserstein Distance
 wd = wasserstein_distance(X_familiar, X_unfamiliar)
 print(f"Wasserstein Distance between familiar and unfamiliar firing distributions: {wd:.4f}")
 
-from scipy.stats import entropy
+
 
 # Estimate probability densities
 hist_familiar, bins_familiar = np.histogram(X_familiar, bins=50, density=True)
@@ -91,7 +104,7 @@ print(f"KL Divergence between distributions: {kl_div:.4f}")
 
 
 
-from sklearn.model_selection import train_test_split
+
 
 # Split data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2, random_state=42, stratify=y)
@@ -101,7 +114,7 @@ print("Test set size:", X_test.shape)
 
 
 
-from sklearn.linear_model import LogisticRegression
+
 
 # Initialize and train logistic regression model
 model = LogisticRegression(max_iter=1000)
@@ -110,7 +123,7 @@ model.fit(X_train, y_train)
 
 
 
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
 
 # Make predictions
 y_pred = model.predict(X_test)
@@ -124,8 +137,7 @@ print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 
 # Plot confusion matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
+
 
 """cm = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(5, 4))
@@ -154,7 +166,7 @@ plt.show()"""
 
 
 
-from sklearn.metrics import accuracy_score, classification_report, f1_score
+
 
 # Make predictions on the test set
 y_pred = model.predict(X_test)
